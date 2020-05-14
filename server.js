@@ -11,8 +11,12 @@ const app = express()
 
 //GET: Reading, POST: Creating, PUT:Updating, DELETE: Deleting
 
-app.set('view engine', 'ejs')
+
 //Middle ware
+
+//We are setting our view engine, ejs
+app.set('view engine', 'ejs')
+
 app.use((req,res, next)=>{
 
 const user= os.hostname
@@ -24,6 +28,7 @@ fs.appendFile('log.txt', content, err => {
    if (err) throw err
    console.log('content has been saved')
 })
+//must thing to do
 next()
 })
 
@@ -72,77 +77,78 @@ let students = [
 ]
 
 app.get('/', (req, res) => {
-    res.render('index')
+    res.render('pages/index')
 })
 
 
 app.get('/about', (req, res) => {
-    res.render('about')
+    res.render('pages/about')
 })
 
 app.get('/contact', (req, res) => {
-    res.render('contact')
+    res.render('pages/contact')
 })
 
 app.get('/students', (req, res) => {
-    res.render('students', {students})
+    res.render('pages/students', {students})
 })
 
-//to read the API
-app.get('/students/api', (req, res) => {
+app.get('/students/:id', (req, res) => {
+    const id= req.params.id
+    const student = students.find(st => st._id==id)
+    res.render('pages/student', {student})
+})
+
+app.get('/add', (req, res) => {
+    res.render('pages/add')
+})
+
+app.get('/student/:id/edit', (req, res) => {
+    const id = req.params.id
+    const student = students.find(st=> st._id==id) 
+    res.render('pages/edit', {student})
+})
+
+//to read all the data form the API
+app.get('/api/v.1.0/students/', (req, res) => {
     res.send(students)
 })
 
-app.get('/students/api/:id', (req, res) => {
+//to read on single student from the API
+app.get('/api/v.1.0/students/:id', (req, res) => {
     const id= req.params.id
     const student = students.find(st=> st._id==id || st.firstName.toLowerCase()==id.toLowerCase()) 
-
-    if (student){
-        res.send(student) 
-    }else{
-        res.send('Student with this ID does not exist' ) 
-    }
-    
+    res.send(student)    
 })
 
-//to add to the API
-app.post('/students', (req, res) => {
+//to add data to the API, adding student route
+app.post('/api/v.1.0/students/', (req, res) => {
     const id=students.length+1
+    req.body.skills = req.body.skills.split(',')
     req.body._id= id
     students.push(req.body)
-    res.send('A student data has been created')
+    res.redirect('/students')
 })
 
-//to edit the API
-app.put('/students/:id', (req, res) => {
+//to edit a data of the API, editing path
+app.post('/api/v.1.0/students/:id/edit', (req, res) => {
     const id= req.params.id
-    const student = students.find(st=> st._id==id || st.firstName.toLowerCase()==id.toLowerCase()) 
-
-    if (student){
-      students=students.map(st => {
-       if(st._id==id){
+    students=students.map(st => {
+        if(st._id==id){
+           req.body.skills = req.body.skills.split(',')
            req.body._id= +id
            return req.body
        }  
-      return st 
+        return st 
     })  
-     res.send('A student data has been edited')
-    }else{
-    res.send('Student with this ID does not exist' ) 
-   }
+    res.redirect('/students')
    })
 
-app.delete('/students/:id', (req, res) => {
+//get to delete a data from the API
+app.get('/api/v.1.0/students/:id/delete', (req, res) => {
     const id= req.params.id
-    const student = students.find(st=> st._id==id || st.firstName.toLowerCase()==id.toLowerCase()) 
-    
-    if (student){
     students = students.filter(st=> st._id!=id) 
-    res.send('A student data has been edited')
-}else{
-    res.send('Student with this ID does not exist' ) 
-   }
-
+    res.redirect('/students')
 })
 
 app.listen(PORT, () =>{
