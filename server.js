@@ -1,16 +1,24 @@
 const express= require('express')
 const fs = require('fs')
 const os = require('os')
+const mongoose = require('mongoose')
 const bodyParser= require('body-parser')
 const {showDateTime} = require('./my_modules/my_modules.js')
+const Student = require('./models/Student')
 const PORT = process.env.PORT || 2500
 
 const app = express()
 
 //CRUD (creadte, read, update, delete) OPERATION
-
 //GET: Reading, POST: Creating, PUT:Updating, DELETE: Deleting
 
+//connect mongodb with the server
+const MONGODB_URI='mongodb+srv://lizzeth:gatito@express-ejs-data-1eril.mongodb.net/express-ejs-db?retryWrites=true&w=majority'
+
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true  }, (err)=> {
+    if (err) return console.log(err)
+    console.log('The server is conncected to MongoDB database')
+})
 
 //Middle ware
 
@@ -41,41 +49,6 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
-let students = [ 
-    {
-     _id: 1,
-     firstName: 'Asabeneh',
-     lastName: 'Yetayeh',
-     age: 38,
-     country: 'Etiophia',
-     skills: ['HTML','CSS','JS', 'Node']
-    },
-    {
-     _id: 2,
-     firstName: 'Heidi',
-     lastName: 'Salamanca',
-     age: 30,
-     country: 'Peru',
-     skills: ['HTML','CSS','React','Redux']
-    },
-    {
-     _id: 3,
-     firstName: 'Elizabeth',
-     lastName: 'Salamanca',
-     age: 32,
-     country: 'Peru',
-     skills: ['HTML','CSS','React','Python']
-    },
-    {
-     _id: 4,
-     firstName: 'Maricarmen',
-     lastName: 'Marin',
-     age: 42,
-     country: 'Spain',
-     skills: ['HTML','CSS','React','Python']
-    }
-]
-
 app.get('/', (req, res) => {
     res.render('pages/index')
 })
@@ -90,14 +63,19 @@ app.get('/contact', (req, res) => {
 })
 
 app.get('/students', (req, res) => {
-    res.render('pages/students', {students})
+    Student.find({}, (err, students)=> {
+    err ? res.status(404).send('Not found') : res.render('pages/students', {students})
+    })
 })
+
 
 app.get('/students/:id', (req, res) => {
     const id= req.params.id
-    const student = students.find(st => st._id==id)
-    res.render('pages/student', {student})
+    Student.findOne({_id: id}, (err, student)=> {
+    err ? res.status(404).send('Not found') : res.render('pages/student', {student})
+    })
 })
+
 
 app.get('/add', (req, res) => {
     res.render('pages/add')
@@ -105,51 +83,61 @@ app.get('/add', (req, res) => {
 
 app.get('/student/:id/edit', (req, res) => {
     const id = req.params.id
-    const student = students.find(st=> st._id==id) 
-    res.render('pages/edit', {student})
+    Student.findOne({_id: id}, (err, student)=> {
+    err ? res.status(404).send('Not found') :  res.render('pages/edit', {student})
+    })
 })
 
 //to read all the data form the API
 app.get('/api/v.1.0/students/', (req, res) => {
-    res.send(students)
+    Student.find({}, (err, students)=> {
+        err ? res.status(404).send('Not found') : res.json(students)
+        })
+    
 })
 
 //to read on single student from the API
 app.get('/api/v.1.0/students/:id', (req, res) => {
     const id= req.params.id
-    const student = students.find(st=> st._id==id || st.firstName.toLowerCase()==id.toLowerCase()) 
-    res.send(student)    
+    Student.findOne({_id: id}, (err, student)=> {
+        err ? res.status(404).send('Not found') : res.json(student)    
+        })
 })
 
 //to add data to the API, adding student route
 app.post('/api/v.1.0/students/', (req, res) => {
-    const id=students.length+1
     req.body.skills = req.body.skills.split(',')
-    req.body._id= id
-    students.push(req.body)
-    res.redirect('/students')
+    const newStudent = new Student(req.body)
+    newStudent.save(err =>{
+    err ? res.status(404).send('Not found') : res.redirect('/students')   
+    }) 
 })
 
 //to edit a data of the API, editing path
 app.post('/api/v.1.0/students/:id/edit', (req, res) => {
     const id= req.params.id
-    students=students.map(st => {
-        if(st._id==id){
-           req.body.skills = req.body.skills.split(',')
-           req.body._id= +id
-           return req.body
-       }  
-        return st 
-    })  
-    res.redirect('/students')
-   })
+    req.body.skills = req.body.skills.split(',')
+    const {firstName, lastName, age, country, bio, skills} = req.body
+    Student.findOne({_id: id}, (err, student)=> {
+        if(err) return res.status(404)
+        student.firstName= firstName
+        student.lastName= lastName
+        student.age= age
+        student.country = country
+        student.bio = bio
+        student.skills = skills
+        student.save(err =>{ err ? res.status(404).send('Not found') : res.redirect('/students') })  
+    })
+})
 
 //get to delete a data from the API
 app.get('/api/v.1.0/students/:id/delete', (req, res) => {
     const id= req.params.id
-    students = students.filter(st=> st._id!=id) 
-    res.redirect('/students')
+    Student.deleteOne({_id: id}, (err, student)=> {
+    err ? res.status(404).send('Not found') : res.redirect('/students')
+    })
 })
+
 
 app.listen(PORT, () =>{
    console.log(`Server is tunning on port ${PORT}`) 
