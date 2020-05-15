@@ -7,39 +7,19 @@ const bodyParser= require('body-parser')
 const {showDateTime} = require('./my_modules/my_modules.js')
 const Student = require('./models/Student')
 const PORT = process.env.PORT || 2500
+const Router = require('./routes/routes')
 
 const app = express()
 
 //CRUD (creadte, read, update, delete) OPERATION
 //GET: Reading, POST: Creating, PUT:Updating, DELETE: Deleting
 
-//connect mongodb with the server
 
 
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true  }, (err)=> {
-    if (err) return console.log(err)
-    console.log('The server is conncected to MongoDB database')
-})
-
-//Middle ware
 
 //We are setting our view engine, ejs
 app.set('view engine', 'ejs')
 
-app.use((req,res, next)=>{
-
-const user= os.hostname
-const page= req.url
-const date = showDateTime()
-const content = `${user} access ${page} page on ${date}\n`
-
-fs.appendFile('log.txt', content, err => {
-   if (err) throw err
-   console.log('content has been saved')
-})
-//must thing to do
-next()
-})
 
 //Serving static files in express
 app.use(express.static('public'))
@@ -50,6 +30,15 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
+//connect mongodb with the server
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true  }, (err)=> {
+    if (err) return console.log(err)
+    console.log('The server is conncected to MongoDB database')
+})
+
+app.use('/', Router)
+
+/*
 app.get('/', (req, res) => {
     res.render('pages/index')
 })
@@ -138,7 +127,23 @@ app.get('/api/v.1.0/students/:id/delete', (req, res) => {
     err ? res.status(404).send('Not found') : res.redirect('/students')
     })
 })
+*/
 
+//Middle ware
+app.use((req,res, next)=>{
+    const user= os.hostname
+    const page= req.url
+    const date = showDateTime()
+    const content = `${user} access ${page} page on ${date}\n`
+    
+    fs.appendFile('log.txt', content, err => {
+       if (err) throw err
+       console.log('content has been saved')
+    })
+    //must thing to do
+    next()
+    })
+    
 
 app.listen(PORT, () =>{
    console.log(`Server is tunning on port ${PORT}`) 
