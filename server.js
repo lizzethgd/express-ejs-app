@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express= require('express')
 const fs = require('fs')
 const os = require('os')
@@ -13,9 +14,9 @@ const app = express()
 //GET: Reading, POST: Creating, PUT:Updating, DELETE: Deleting
 
 //connect mongodb with the server
-const MONGODB_URI='mongodb+srv://lizzeth:gatito@express-ejs-data-1eril.mongodb.net/express-ejs-db?retryWrites=true&w=majority'
 
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true  }, (err)=> {
+
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true  }, (err)=> {
     if (err) return console.log(err)
     console.log('The server is conncected to MongoDB database')
 })
