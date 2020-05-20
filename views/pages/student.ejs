@@ -12,7 +12,7 @@
         <p><%= student.country %></p>
         <p><%= student.skills.join(', ')%></p>
         <p><%= student.bio%></p>
-        <a href="/student/<%= student._id%>/edit" class="btn btn-primary active" role="button" aria-pressed="true">Edit</a> <a href="/api/v.1.0/students/<%= student._id%>/delete" class="btn btn-primary active" role="button" aria-pressed="true">Delete</a> <a href="/students" class="btn btn-primary active" role="button" aria-pressed="true">Cancel</a>
+        <a href="/student/<%= student._id%>/edit" class="button" role="button" aria-pressed="true">Edit</a> <a href="/api/v.1.0/students/<%= student._id%>/delete" class="button" role="button" aria-pressed="true">Delete</a> <a href="/students" class="button" role="button" aria-pressed="true">Cancel</a>
       <% } %>
   </main> 
   <%- include('../partials/footer') %> 
