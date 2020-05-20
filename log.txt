@@ -1320,3 +1320,6 @@ lizzethgd-HP-ProBook-655-G1 access /student/5ebe543f99b4d159d986a45c/edit page o
 lizzethgd-HP-ProBook-655-G1 access /student/5ebe543f99b4d159d986a45c/edit page on May 18, 2020 23:16:40
 lizzethgd-HP-ProBook-655-G1 access /student/5ebe543f99b4d159d986a45c/edit page on May 18, 2020 23:16:45
 lizzethgd-HP-ProBook-655-G1 access /student/5ebe543f99b4d159d986a45c/edit page on May 18, 2020 23:17:15
+lizzethgd-HP-ProBook-655-G1 access /student/add page on May 20, 2020 14:54:22
+lizzethgd-HP-ProBook-655-G1 access /student/add page on May 20, 2020 14:54:27
+lizzethgd-HP-ProBook-655-G1 access /student/add page on May 20, 2020 14:54:36

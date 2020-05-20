@@ -14,9 +14,6 @@ const app = express()
 //CRUD (creadte, read, update, delete) OPERATION
 //GET: Reading, POST: Creating, PUT:Updating, DELETE: Deleting
 
-
-
-
 //We are setting our view engine, ejs
 app.set('view engine', 'ejs')
 
