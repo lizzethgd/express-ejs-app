@@ -44,11 +44,13 @@ header{
  }
 
 a{
-    text-decoration: none
+    text-decoration: none;
+    color: blue
 }
 
 a:hover{
- color: lightskyblue
+ color: blueviolet
+ 
 }
 
 
